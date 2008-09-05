@@ -29,6 +29,11 @@
 
 class paymentlib_to_commerce_bridge{
 
+	function LL($key){
+		return $GLOBALS['TSFE']->sL('LLL:EXT:idefa_commerce_paymentlib/locallang_db.xml:'.$key);
+	}
+
+
 	/* I use die rather than gracefull errors in this since any errors would be configuration errrors
 	 **/
 	function InitPaymentLib(){
@@ -103,21 +108,36 @@ class paymentlib_to_commerce_bridge{
 		}
 	}
 
-	function getPaymentLibForm(){#&tx_commerce_pi3[step]=finish
+	function getPaymentLibForm($pObj,$errors){#&tx_commerce_pi3[step]=finish
 			$formAction = $this->providerObj->transaction_formGetActionURI();
 			$hiddenFields = '';
 			$hiddenFieldsArr = $this->providerObj->transaction_formGetHiddenFields();
 			foreach ($hiddenFieldsArr as $key => $value) {
 					$hiddenFields .= '<input name='.$key.' type="hidden" value="'.htmlspecialchars($value).'" />'.chr(10);
 			}
-			$form = '<form method="post" action="'.$formAction.'">'.$hiddenFields.'<input type="submit" value="Gå til betaling!" /></form>';
-			return $form;
+			# taken from commerce_pi3 for conformity
+
+			if ($pObj->conf[$paymentType.'.']['subpartMarker.']['listWrap']) {
+				$template = $pObj->cObj->getSubpart($pObj->templateCode, strtoupper($pObj->conf[$paymentType.'.']['subpartMarker.']['listWrap']));
+			} else {
+				$template = $pObj->cObj->getSubpart($pObj->templateCode, '###PAYMENT###');
+			}		
+
+			// fill some standard markers
+			$markerArray['###PAYMENT_TITLE###'] = $pObj->pi_getLL($pObj->currentStep.'_title');
+			$markerArray['###PAYMENT_DESCRIPTION###'] = $pObj->pi_getLL($pObj->currentStep.'_description');
+			$markerArray['###PAYMENT_DISCLAIMER###'] = $pObj->pi_getLL('general_disclaimer') .'<br />' .$pObj->pi_getLL('payment_disclaimer');;
+
+
+			$markerArray['###PAYMENT_FORM_FIELDS###']=$errors.'<form method="post" action="'.$formAction.'">'.$hiddenFields;
+			$markerArray['###PAYMENT_FORM_SUBMIT###']='<input type="submit" value="'.$this->LL('openpayment').'" /></form>';
+
+			return $pObj->cObj->substituteMarkerArray($pObj->cObj->substituteMarkerArray($template, $markerArray),$pObj->languageMarker);
 	}
 
-#---------------- BEGIN: suspected commerce payment interface -------------
-# Below is what I *think* is the required interface to commerce, due to lack
-# of documentation this is c/p and cleaned as stuff is shown to be unused.
-# $pObj is presumably a payment object with unknown data structure
+#--------------------------------------------------------------------------
+#
+# $pObj is the shop module ie $this of pi3
 #--------------------------------------------------------------------------
 	var $errorFields = array();
 	var $errorMessages = array();
@@ -157,6 +177,7 @@ class paymentlib_to_commerce_bridge{
 		#It would be nice if there was somehow a way to let
 		#the user change their mind and return to select something
 		#else on the payment step, but so far I've come up with notting.
+		#t3lib_div::devLog('referer','idefa_payment',0,$formData);
 		if ( isset($this->providerObj) ){
 		}else{
 			$bob=$this->GetPaymentLibPaymentMethods();
@@ -277,11 +298,12 @@ function getSpecialFinishingForm($config,$session, $basket,$pObj) {
 			return true;
 		}else{
 			#Give them the form
-			$out="";
+			$errors="";
 			if ( count($this->errorMessages) ){
-				$out=t3lib_TStemplate::wrap($this->errorMessages[count($this->errorMessages)-1],$this->conf['payementError']);
+				$errors=t3lib_TStemplate::wrap($this->errorMessages[count($this->errorMessages)-1],$this->conf['payementError']);
 			}
-			return $out.$this->getPaymentLibForm();
+#TODO: Pass this through the payment template
+			return $this->getPaymentLibForm($pObj,$errors);
 		}
 }
 
@@ -291,11 +313,6 @@ function generateOrderId($orderId, $basket, $that){
 	if ( !$this->conf['orderIDoverride'] ){
 		return $orderId;
 	}
-/*	echo "<hr><b>generateOrderId</b><pre>";
-	print_r($orderId);
-	print_r($basket);
-	print_r($that);
-	echo "</pre>";*/
 
 	$orderId=$GLOBALS["TSFE"]->fe_user->getKey("ses","gateway_orderID");
 	return $orderId;

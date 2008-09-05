@@ -1,3 +1,8 @@
+Known bugs
+If you already filled out the payment step once ( here choosing paymentlib payment method ) you cannot return to re-do that choice, 
+and even with swapSteps set you will be taken to the 'Check your details'. This is due to bug #1327 in commerce
+
+
 * Setup
 all TS for this module is setup as:
 
@@ -11,7 +16,19 @@ config.idefa_commerce_paymentlib{
 
 	#override the default commerce order ID with the reply from the gateway ( 0/unset = no, 1= yes )
 	orderIDoverride=0
+
+	#new as of 0.1.2
+	#Swaps the 'Check your details' and 'Payment' steps for a more logical payment flow, 0/unset disables this
+	swapSteps=0;
 }
+
+
+Also you want to add to pi3/locallang.xml:
+
+			<label index="finish_title">Finish</label>
+			<label index="finish_description"></label>
+
+
 
 * Hint for setting up the quickpay payment provider ( and possibly others )
 -------8<---------------------
@@ -44,4 +61,3 @@ NOTE! if no function is specified time() will be used wich is neither very usefr
 
 * Credits
 the extention icon is "coins.png" from the silk icon pack ( http://www.famfamfam.com/lab/icons/silk/ )
-Initial development by IdeFA Gruppen ( http://www.idefa.dk/ )

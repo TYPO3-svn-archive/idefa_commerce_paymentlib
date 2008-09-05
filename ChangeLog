@@ -1,5 +1,10 @@
 (add new changes on top of this file)
 
+08-09-05 Morten Olesen <mo@idefa.dk>
+	* added translation support
+	* added support for swapping the payment step with the listing step
+	* added support for templating the finish/payment step ( using the default payment template )
+
 08-02-13 Morten Olesen  <mo@idefa.dk>
 
 	* Initial release
