@@ -2,6 +2,8 @@ Known bugs
 If you already filled out the payment step once ( here choosing paymentlib payment method ) you cannot return to re-do that choice, 
 and even with swapSteps set you will be taken to the 'Check your details'. This is due to bug #1327 in commerce
 
+Due to a series of bugs in commerce PI3 swapping the payments steps may ( depending on payment method ) cause a the module to fail to work.
+This is scheduled to be fixed in 0.1.3
 
 * Setup
 all TS for this module is setup as:
