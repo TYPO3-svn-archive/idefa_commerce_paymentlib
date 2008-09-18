@@ -1,5 +1,13 @@
 (add new changes on top of this file)
 
+08-09-18 Morten Olesen <mo@idefa.dk>
+	* spelling error reoder => reorder (bug #1538, thanks to Søren Thing Andersen for pointing this out )
+	* payment amount changed from net to gross ( the amount sendt to paymentlib now includes tax )
+	* New sparkly icon
+	* piVars set before paymentlib kicks in are now keept intact, eliminating the need for setting special urls in the payment provider modules
+		* this also means that user comments are now correctly saved
+	* It is now at long last possible to re-do the payment method step ( "step 3: payment" ) if desired.
+
 08-09-05 Morten Olesen <mo@idefa.dk>
 	* added translation support
 	* added support for swapping the payment step with the listing step

@@ -73,7 +73,7 @@ class paymentlib_to_commerce_bridge{
 		$this->providerFactoryObj = tx_paymentlib_providerfactory::getInstance();
 		$this->providerObj = $this->providerFactoryObj->getProviderObjectByPaymentMethod($selectedPaymentMethod);
 		if (!$this->providerObj) { return "ERROR: _".$this->providerObj;}
-		$ok = $this->providerObj->transaction_init (TX_PAYMENTLIB_TRANSACTION_ACTION_AUTHORIZEANDTRANSFER, $selectedPaymentMethod, TX_PAYMENTLIB_GATEWAYMODE_FORM, 'rlmp_eventdb');
+		$ok = $this->providerObj->transaction_init (TX_PAYMENTLIB_TRANSACTION_ACTION_AUTHORIZEANDTRANSFER, $selectedPaymentMethod, TX_PAYMENTLIB_GATEWAYMODE_FORM, 'idefa_commerce_paymentlib');
 		if (!$ok) return 'ERROR: Could not initialize transaction.';
 		return true;
 	}
@@ -188,7 +188,7 @@ class paymentlib_to_commerce_bridge{
 				return $test;
 			}
 		}
-		return true;
+		return !$pObj->idefa_commerce_paymentlib_show_payment_again;
 	}
 	
 	/**
@@ -261,7 +261,9 @@ function hasSpecialFinishingForm($request, $pObj){
 		}
 	$orderID=$GLOBALS["TSFE"]->fe_user->getKey("ses","orderID");
 	if ( $orderID!=null && $this->CheckPaymentLibResult($orderID) ){
+		#clean up our mess
 		$GLOBALS['TSFE']->fe_user->setKey("ses","orderID",null);
+		$GLOBALS['TSFE']->fe_user->setKey("ses",'idefa_commerce_paymentlib_pivars',array());
 		$GLOBALS['TSFE']->fe_user->setKey("ses","done_orderID",$orderID);
 		return false;
 	}
@@ -287,7 +289,7 @@ function getSpecialFinishingForm($config,$session, $basket,$pObj) {
 			}
 		}
 		$GLOBALS['TSFE']->fe_user->setKey("ses","orderID",$orderID);
-		$totalPrice=$basket->get_net_sum();
+		$totalPrice=$basket->get_gross_sum();
 		$currency=$pObj->currency;
 		$test=$this->SetPaymentLibPaymentDetails($totalPrice,$currency,$orderID);#now where would we get this info?
 		if ( $test!==true){

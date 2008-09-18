@@ -1,9 +1,8 @@
 Known bugs
-If you already filled out the payment step once ( here choosing paymentlib payment method ) you cannot return to re-do that choice, 
-and even with swapSteps set you will be taken to the 'Check your details'. This is due to bug #1327 in commerce
-
-Due to a series of bugs in commerce PI3 swapping the payments steps may ( depending on payment method ) cause a the module to fail to work.
-This is scheduled to be fixed in 0.1.3
+	* swap steps requires a modified version of the commerce checkout plugin, I will try to clean up the changes and submit
+		them when I can find the time.
+	* The "finish" step will always show the users last gateway error untill the they successfully complete a payment transaction
+		The jury is still out on wether to concider this a feature or a bug - so for now no steps to fix this will be taken.
 
 * Setup
 all TS for this module is setup as:
@@ -24,6 +23,11 @@ config.idefa_commerce_paymentlib{
 	swapSteps=0;
 }
 
+#To set the paymentlib as the default use ( substitute 5 with the actual article id of the paymentlib article ):
+
+plugin.tx_commerce_lib.paymentArticleId=5
+
+
 
 Also you want to add to pi3/locallang.xml:
 
@@ -33,6 +37,8 @@ Also you want to add to pi3/locallang.xml:
 
 
 * Hint for setting up the quickpay payment provider ( and possibly others )
+As of 0.1.3 this information is outdated, it should work "out of the box" as this module stores this information internally.
+[
 -------8<---------------------
 Ok page
 [okpage]
@@ -42,12 +48,15 @@ Error page
 [errorpage]
     URL to show on transaction error. Defaults to "current" page.
 ------------->8---------------
-with the default we loose the information of wich step we are on and the fact that we've already accepted the terms
-so you must use the full url of the checkout ie
-http://www.mysite.com/index.php?id=75
-and add
-&tx_commerce_pi3[step]=finish&tx_commerce_pi3[terms]=termschecked
-after that url.
+
+
+	with the default we loose the information of wich step we are on and the fact that we've already accepted the terms
+	so you must use the full url of the checkout ie
+	http://www.mysite.com/index.php?id=75
+	and add
+	&tx_commerce_pi3[step]=finish&tx_commerce_pi3[terms]=termschecked
+	after that url.
+]
 
 * To override the builtin orderID generator use
 
@@ -60,6 +69,3 @@ This is done since commerce does not generate an order ID till after the gateway
 NOTE! if no function is specified time() will be used wich is neither very usefriendly nor guaranteed to be unique ( since it only has a resolution of 1 second )
 
 
-
-* Credits
-the extention icon is "coins.png" from the silk icon pack ( http://www.famfamfam.com/lab/icons/silk/ )
